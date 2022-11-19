@@ -1,0 +1,33 @@
+{
+    "packages": [{
+            "name": "2 drinks pkg",
+            "price": 68,
+            "items": [{
+                    "id": 1,
+                    "qty": 2
+                },
+                {
+                    "id": 2,
+                    "qty": 1
+                }
+            ]
+        },
+        {
+            "name": "breakfast pkg",
+            "price": 55,
+            "items": [{
+                    "id": 2,
+                    "qty": 1
+                },
+                {
+                    "id": 3,
+                    "qty": 1
+                },
+                {
+                    "id": 4,
+                    "qty": 6
+                }
+            ]
+        }
+    ]
+}

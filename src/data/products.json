@@ -1,0 +1,23 @@
+{
+    "products": [{
+            "id": 1,
+            "name": "Cold drink",
+            "price": 30
+        },
+        {
+            "id": 2,
+            "name": "biscuits",
+            "price": 24
+        },
+        {
+            "id": 3,
+            "name": "bread",
+            "price": 15
+        },
+        {
+            "id": 4,
+            "name": "egg",
+            "price": 5
+        }
+    ]
+}
