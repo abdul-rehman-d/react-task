@@ -1,14 +1,7 @@
 import { useEffect, useState } from 'react'
 import productsJSON from './data/products.json'
 import packagesJSON from './data/packages.json'
-
-const parsePrices = (products) => {
-  const obj = {}
-  for (const product of products) {
-    obj[product.id] = {price: product.price, name: product.name}
-  }
-  return obj
-}
+import { findBestPackage, getCartTotal, parseProductDetailsInoObject } from './helpers'
 
 function App() {
   const [products, setProducts] = useState([])
@@ -20,47 +13,12 @@ function App() {
   useEffect(() => {
     setProducts(productsJSON.products);
     setPackages(packagesJSON.packages);
-    setProductDetais(parsePrices(productsJSON.products))
+    setProductDetais(parseProductDetailsInoObject(productsJSON.products))
   }, [])
-
-  const findBestPackage = (obj) => {
-    const total = Object.keys(obj).reduce((total, item) => (
-      (productDetais[item].price * obj[item]) + total
-    ), 0);
-    let bestOffer;
-    for (const packageObj of packages) {
-      let remaining = total;
-      const itemsLeft = {...cartObj};
-      const viable = packageObj.items.every((item) => {
-        if (Object.keys(itemsLeft).includes(String(item.id))) {
-          const viable = item.qty <= itemsLeft[item.id]
-          if (!viable) return false
-          itemsLeft[item.id] -= item.qty
-          if (itemsLeft[item.id] <= 0) {
-            delete itemsLeft[item.id];
-          }
-          remaining -= (item.qty * productDetais[item.id].price)
-          return true
-        }
-        return false
-      })
-      if (!viable) continue
-      const totalPrice = packageObj.price + remaining;
-      if (!bestOffer || bestOffer.saved < total - totalPrice)
-        bestOffer = {
-          ...packageObj,
-          otherItems: {...itemsLeft},
-          total: totalPrice,
-          saved: total - totalPrice,
-        };
-    }
-    return bestOffer
-  }
 
   const getCart = (e) => {
     e.preventDefault();
-    // finding best package
-    setBestOffer(findBestPackage(cartObj))
+    setBestOffer(findBestPackage(cartObj, packages, productDetais))
   }
 
   const handleProductChange = (e) => {
@@ -78,9 +36,10 @@ function App() {
   }
 
   return (
-    <div>
+    <main className='main-container'>
       {products.length ?
-        <form onSubmit={getCart}>
+        <form onSubmit={getCart} className='form-container'>
+          <h2>Place your order:</h2>
           {products.map(product => (
             <div className='product-card' key={`product-${product.id}`}>
               <p>{product.name}</p>
@@ -95,32 +54,58 @@ function App() {
               <p>{product.name}</p>
             </div>
           ))}
-          <button type='submit'>submit</button>
+          <button type='submit' className='submit-button'>submit</button>
         </form>
         : null
       }
     <div>
       <h2>Best Offer</h2>
       {bestOffer ?
-        <>
-          <p>
-            <span>{bestOffer.name}</span>
-            <span>
-              {Object.keys(bestOffer.otherItems).length ?
-                ` + ${Object.keys(bestOffer.otherItems).map(
-                  item => (bestOffer.otherItems[item] + ' ' + productDetais[item].name)
-                ).join(' + ')}`
-              : ''
-            }
-            </span>
-          </p>
-          <p>{`Saved => ${bestOffer.saved}`}</p>
-        </>
+        <div className='offer-table'>
+          {
+            bestOffer.name ?
+            <>
+              <h3>Offers</h3>
+              <div className='table-row'>
+                <p>{bestOffer.name}</p>
+                <p>{bestOffer.price}</p>
+              </div>
+            </>
+            : null
+          }
+          {
+            bestOffer.otherItems && Object.keys(bestOffer.otherItems).length ?
+            <>
+              <h3>Other Items</h3>
+              {Object.keys(bestOffer.otherItems).map(item => (
+                <div className='table-row'>
+                  <p>
+                    {`${bestOffer.otherItems[item]}x ${productDetais[item].name}`}
+                  </p>
+                  <p>
+                    {productDetais[item].price}
+                  </p>
+                </div>
+              ))}
+            </>
+            : null
+          }
+
+          <h3>Total</h3>
+          <div className='table-row'>
+            <p>Total Saved</p>
+            <p>-{bestOffer.saved}</p>
+          </div>
+          <div className='table-row'>
+            <p>TOTAL</p>
+            <p>{bestOffer.total}</p>
+          </div>
+        </div>
       :
         <p>Best offer will appear here once you submit your order.</p>
       }
     </div>
-    </div>
+    </main>
   )
 }
 
